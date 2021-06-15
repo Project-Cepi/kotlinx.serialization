@@ -40,32 +40,33 @@ public annotation class JsonNames(vararg val names: String)
 
 /**
  * Specifies key for class discriminator value used during polymorphic serialization in [Json].
- * Provided key is used only for an annotated class, to configure global class discriminator, use [JsonBuilder.classDiscriminator]
+ * Provided key is used only for an annotated class and its subclasses;
+ * to configure global class discriminator, use [JsonBuilder.classDiscriminator]
  * property.
  *
- * It is possible to define different class discriminators for different parts of class hierarchy.
+ * This annotation is [inheritable][InheritableSerialInfo], so it should be sufficient to place it on a base class of hierarchy.
+ * It is not possible to define different class discriminators for different parts of class hierarchy.
  * Pay attention to the fact that class discriminator, same as polymorphic serializer's base class, is
  * determined statically.
  *
  * Example:
  * ```
  * @Serializable
- * @JsonClassDiscriminator("class")
+ * @JsonClassDiscriminator("message_type")
  * abstract class Base
  *
- * @Serializable
- * @JsonClassDiscriminator("error_class")
+ * @Serializable // Class discriminator is inherited from Base
  * abstract class ErrorClass: Base()
  *
  * @Serializable
  * class Message(val message: Base, val error: ErrorClass?)
  *
- * val message = Json.decodeFromString<Message>("""{"message": {"class":"my.app.BaseMessage", "message": "not found"}, "error": {"error_class":"my.app.GenericError", "error_code": 404}}""")
+ * val message = Json.decodeFromString<Message>("""{"message": {"message_type":"my.app.BaseMessage", "message": "not found"}, "error": {"message_type":"my.app.GenericError", "error_code": 404}}""")
  * ```
  *
  * @see JsonBuilder.classDiscriminator
  */
-@SerialInfo
+@InheritableSerialInfo
 @Target(AnnotationTarget.CLASS)
 @ExperimentalSerializationApi
 public annotation class JsonClassDiscriminator(val discriminator: String)

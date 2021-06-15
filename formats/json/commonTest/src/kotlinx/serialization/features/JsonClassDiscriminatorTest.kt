@@ -70,11 +70,10 @@ class JsonClassDiscriminatorTest : JsonTestBase() {
     }
 
     @Serializable
-    @JsonClassDiscriminator("class")
+    @JsonClassDiscriminator("message_type")
     abstract class Base
 
     @Serializable
-    @JsonClassDiscriminator("error_class")
     abstract class ErrorClass : Base()
 
     @Serializable
@@ -90,7 +89,7 @@ class JsonClassDiscriminatorTest : JsonTestBase() {
 
 
     @Test
-    fun testDocumentationSample() {
+    fun testDocumentationInheritanceSample() {
         val module = SerializersModule {
             polymorphic(Base::class) {
                 subclass(BaseMessage.serializer())
@@ -103,7 +102,7 @@ class JsonClassDiscriminatorTest : JsonTestBase() {
         assertJsonFormAndRestored(
             Message.serializer(),
             Message(BaseMessage("not found"), GenericError(404)),
-            """{"message":{"class":"my.app.BaseMessage","message":"not found"},"error":{"error_class":"my.app.GenericError","error_code":404}}""",
+            """{"message":{"message_type":"my.app.BaseMessage","message":"not found"},"error":{"message_type":"my.app.GenericError","error_code":404}}""",
             json
         )
     }
